@@ -1,113 +1,107 @@
-import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getJobs } from '../lib/api/jobs'
-import type { Job, JobStatus } from '../types'
 import { errorMessage } from '../lib/utils'
-// TODO: import { JOB_STATUS_LABELS, JOB_STATUS_COLORS } from '../types'
+import type { Job } from '../types'
+import { JOB_STATUS_LABELS, JobStatus } from '../types'
+import { Alert, Input, LinkButton, PageHeader, Select, StatusBadge, Table } from '../components/ui'
 
 export default function Jobs() {
-  // TODO: const [search, setSearch]       = useState('')
-  // TODO: const [statusFilter, setStatus] = useState<JobStatus | ''>('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<JobStatus | ''>('')
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // TODO: useEffect(() => {
-  //   fetch jobs via getJobs({ status: statusFilter || undefined, search })
-  //   update jobs state and setLoading(false)
-  // }, [search, statusFilter])
+  const navigate = useNavigate()
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     async function loadJobs() {
       try {
-        const data = await getJobs()
+        const data = await getJobs({
+          status: statusFilter || undefined,
+          search: search || undefined
+        })
         setJobs(data)
-      }
-      catch(err) {
-        const err_message = errorMessage(err)
-        console.log(err_message)
-        setError(err_message)
-      }
-      finally {
+      } catch (err) {
+        setError(errorMessage(err))
+      } finally {
         setLoading(false)
       }
     }
-
     loadJobs()
-  }, [])
+  }, [search, statusFilter])
 
   return (
     <div className="p-8">
-      {/* ── Header ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
-          <p className="mt-1 text-sm text-gray-500">Track every role you've applied to.</p>
-        </div>
-        <Link
-          to="/jobs/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-500 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Application
-        </Link>
-      </div>
+      <PageHeader
+        title="Applications"
+        description="Track every role you've applied to."
+        action={
+          <LinkButton to="/jobs/new">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Application
+          </LinkButton>
+        }
+      />
 
-      {/* ── Filters ─────────────────────────────────────────── */}
-      {/*
-        TODO: Add a search input bound to `search` state.
-        TODO: Add a status <select> bound to `statusFilter` state.
-               Options: '' (All), and each value from JOB_STATUS_LABELS.
-
-        Suggested layout:
-        <div className="flex gap-3 mb-6">
-          <input ... />
-          <select ... />
-        </div>
-      */}
       <div className="flex gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Search company or role…"
-          disabled
-          className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white placeholder-gray-400"
-        />
-        <select disabled className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-500">
-          <option>All statuses</option>
-        </select>
+        <Input type="text" placeholder="Search company or role…" className="flex-1" value={search} onChange={(e)=>setSearch(e.target.value)}/>
+        <Select value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value as JobStatus | '')}>
+          <option value="">All statuses</option>
+          {Object.entries(JOB_STATUS_LABELS).map(([value, label])=> (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </Select>
       </div>
 
-      {/* ── Jobs table ──────────────────────────────────────── */}
-      {/*
-        TODO: Replace placeholder with real rows from `jobs`.
-        Each row: company, title, status badge (JOB_STATUS_COLORS), applied_date, location.
-        Row should link to /jobs/:id on click.
-      */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Company</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Applied</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Location</th>
-              <th className="px-6 py-3" />
-            </tr>
-          </thead>
-          <tbody>
-            {/* TODO: map jobs → <tr> rows */}
-            <tr>
-              <td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-400 italic">
-                No applications yet.{' '}
-                <Link to="/jobs/new" className="text-indigo-600 hover:underline">Add your first one.</Link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {error && <Alert className="mb-4">{error}</Alert>}
+
+      <Table>
+        <Table.Head>
+          <Table.Row>
+            <Table.Th>Company</Table.Th>
+            <Table.Th>Role</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Applied</Table.Th>
+            <Table.Th>Location</Table.Th>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {loading ? (
+            Array.from({length: 5}).map((_, i)=>(
+              <Table.Row key={i}>
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <Table.Td key={j}>
+                    <div className="h-4 bg-gray-100 rounded animate-pulse" />
+                  </Table.Td>
+                ))}
+              </Table.Row>
+            ))
+          ) : 
+          (jobs.map((job) => (
+            <Table.Row key={job.id} onClick={() => navigate(`/jobs/${job.id}`)}>
+              <Table.Td>{job.company}</Table.Td>
+              <Table.Td>{job.title}</Table.Td>
+              <Table.Td><StatusBadge status={job.status} /></Table.Td>
+              <Table.Td>{job.applied_date ?? '—'}</Table.Td>
+              <Table.Td>{job.location ?? '—'}</Table.Td>
+            </Table.Row>
+          )))}
+          {jobs.length === 0 && !loading && (
+            <Table.EmptyRow colSpan={5}>
+              No applications yet.{' '}
+              <LinkButton to="/jobs/new" variant="ghost" size="sm" className="inline">
+                Add your first one.
+              </LinkButton>
+            </Table.EmptyRow>
+          )}
+        </Table.Body>
+      </Table>
     </div>
   )
 }

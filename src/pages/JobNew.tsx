@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 // TODO: import { useState } from 'react'
 // TODO: import { createJob } from '../lib/api/jobs'
-// TODO: import type { JobInsert, JobStatus } from '../types'
-// TODO: import { JOB_STATUS_LABELS } from '../types'
+// TODO: import type { JobInsert } from '../types'
+import { Alert, Button, FormField, Input, Select } from '../components/ui'
+import { JOB_STATUS_LABELS } from '../types'
 
 export default function JobNew() {
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export default function JobNew() {
   //     const job = await createJob(formData)
   //     navigate(`/jobs/${job.id}`)
   //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : 'Something went wrong')
+  //     setError(errorMessage(err))
   //   } finally {
   //     setSaving(false)
   //   }
@@ -29,7 +30,6 @@ export default function JobNew() {
 
   return (
     <div className="p-8 max-w-2xl">
-      {/* ── Header ────────────────────────────────────────────── */}
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -44,62 +44,38 @@ export default function JobNew() {
         <p className="mt-1 text-sm text-gray-500">Track a new job you're pursuing.</p>
       </div>
 
-      {/* ── Form ──────────────────────────────────────────────── */}
-      {/*
-        TODO: Wire this form up with controlled inputs and handleSubmit.
-        Fields needed (see JobInsert type):
-          - company (required text)
-          - title   (required text)
-          - status  (select, default 'wishlist')
-          - applied_date (date input, optional)
-          - job_url (url input, optional)
-          - location (text, optional)
-          - remote  (checkbox, default false)
-          - salary_min / salary_max (number inputs, optional)
-          - notes (textarea, optional)
-      */}
+      {/* TODO: add onSubmit={handleSubmit} */}
       <form className="space-y-5 bg-white rounded-xl border border-gray-200 p-6">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Company <span className="text-red-500">*</span></label>
-            <input type="text" placeholder="Acme Corp" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role / Title <span className="text-red-500">*</span></label>
-            <input type="text" placeholder="Senior Engineer" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
+          <FormField label="Company" required>
+            <Input type="text" placeholder="Acme Corp" />
+          </FormField>
+          <FormField label="Role / Title" required>
+            <Input type="text" placeholder="Senior Engineer" />
+          </FormField>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              {/* TODO: map JOB_STATUS_LABELS entries to <option> elements */}
-              <option value="wishlist">Wishlist</option>
-              <option value="applied">Applied</option>
-              <option value="phone_screen">Phone Screen</option>
-              <option value="interview">Interview</option>
-              <option value="offer">Offer</option>
-              <option value="rejected">Rejected</option>
-              <option value="withdrawn">Withdrawn</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date Applied</label>
-            <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
+          <FormField label="Status">
+            <Select fullWidth>
+              {Object.entries(JOB_STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField label="Date Applied">
+            <Input type="date" />
+          </FormField>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Job URL</label>
-          <input type="url" placeholder="https://…" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
+        <FormField label="Job URL">
+          <Input type="url" placeholder="https://…" />
+        </FormField>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-            <input type="text" placeholder="San Francisco, CA" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
+          <FormField label="Location">
+            <Input type="text" placeholder="San Francisco, CA" />
+          </FormField>
           <div className="flex items-center gap-2 pt-6">
             <input type="checkbox" id="remote" className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
             <label htmlFor="remote" className="text-sm font-medium text-gray-700">Remote / Hybrid</label>
@@ -107,38 +83,29 @@ export default function JobNew() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Salary Min</label>
-            <input type="number" placeholder="80000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Salary Max</label>
-            <input type="number" placeholder="120000" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          </div>
+          <FormField label="Salary Min">
+            <Input type="number" placeholder="80000" />
+          </FormField>
+          <FormField label="Salary Max">
+            <Input type="number" placeholder="120000" />
+          </FormField>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-          <textarea rows={4} placeholder="Referral from Jane. Interesting product…" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
-        </div>
+        <FormField label="Notes">
+          <textarea
+            rows={4}
+            placeholder="Referral from Jane. Interesting product…"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          />
+        </FormField>
 
-        {/* TODO: Show error state if error is set */}
+        {/* TODO: show when error is set */}
+        {/* <Alert>{error}</Alert> */}
 
         <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 transition-colors"
-          >
-            {/* TODO: show "Saving…" when saving is true */}
-            Save Application
-          </button>
+          <Button variant="secondary" type="button" onClick={() => navigate(-1)}>Cancel</Button>
+          {/* TODO: disabled={saving}, text: saving ? 'Saving…' : 'Save Application' */}
+          <Button variant="primary" type="submit">Save Application</Button>
         </div>
       </form>
     </div>

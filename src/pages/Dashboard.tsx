@@ -2,15 +2,16 @@
 // TODO: import { getDashboardStats } from '../lib/api/jobs'
 // TODO: import { getJobs } from '../lib/api/jobs'
 // TODO: import type { DashboardStats, Job } from '../types'
+import { LinkButton, StatusBadge, Table } from '../components/ui'
 
 export default function Dashboard() {
-  // TODO: const [stats, setStats] = useState<DashboardStats | null>(null)
+  // TODO: const [stats, setStats]     = useState<DashboardStats | null>(null)
   // TODO: const [recentJobs, setRecentJobs] = useState<Job[]>([])
   // TODO: const [loading, setLoading] = useState(true)
 
   // TODO: useEffect(() => {
   //   fetch stats via getDashboardStats()
-  //   fetch recent jobs via getJobs() (limit to ~5 most recent)
+  //   fetch recent jobs via getJobs() (first 5)
   //   setLoading(false)
   // }, [])
 
@@ -23,37 +24,47 @@ export default function Dashboard() {
 
       {/* ── Stats cards ─────────────────────────────────────── */}
       {/*
-        TODO: Render a row of stat cards using stats.*
-        Suggested cards: Total, Applied, Interviewing, Offers, Rejected
-
-        Each card shape:
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{value}</p>
-        </div>
+        TODO: Render real values from `stats`:
+          stats.total, stats.applied, stats.interviewing, stats.offers, stats.rejected
+        Replace each placeholder <div> with:
+          <div>
+            <p className="...label">{label}</p>
+            <p className="...number">{value ?? '—'}</p>
+          </div>
       */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-10">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse h-24" />
-        <div className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse h-24" />
-        <div className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse h-24" />
-        <div className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse h-24" />
-        <div className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse h-24" />
+        {['Total', 'Applied', 'Interviewing', 'Offers', 'Rejected'].map((label) => (
+          <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
+            <p className="text-sm text-gray-500">{label}</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">—</p>
+          </div>
+        ))}
       </div>
 
       {/* ── Recent applications ──────────────────────────────── */}
       {/*
-        TODO: Render a list of recent jobs (recentJobs).
-        Each row should show: company, title, status badge, applied_date.
-        Link each row to /jobs/:id
+        TODO: Replace EmptyRow with recentJobs.map(...) rows.
+        Each row: company, title, StatusBadge, applied_date.
+        Each row links to /jobs/:id via Table.Row onClick.
       */}
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Recent Applications</h2>
-        </div>
-        <div className="p-6 text-sm text-gray-400 italic">
-          Your recent applications will appear here.
-        </div>
-      </div>
+      <Table>
+        <Table.Head>
+          <Table.Row>
+            <Table.Th>Company</Table.Th>
+            <Table.Th>Role</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Applied</Table.Th>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          <Table.EmptyRow colSpan={4}>
+            No applications yet.{' '}
+            <LinkButton to="/jobs/new" variant="ghost" size="sm" className="inline">
+              Add your first one.
+            </LinkButton>
+          </Table.EmptyRow>
+        </Table.Body>
+      </Table>
     </div>
   )
 }
