@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "vite-dev",
+      "type": "shell",
+      "command": "bash",
+      "args": ["-c", "source ~/.nvm/nvm.sh && nvm use 20.19.0 && npm run dev"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "Local:.*http"
+        }
+      }
+    }
+  ]
+}
