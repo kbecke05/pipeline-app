@@ -68,30 +68,34 @@ begin
 end;
 $$;
 
+drop trigger if exists jobs_updated_at on jobs;
+
 create trigger jobs_updated_at
   before update on jobs
   for each row execute function set_updated_at();
 
 -- ── Row-Level Security ───────────────────────────────────────────────────────
+-- TEMPORARILY DISABLED FOR LOCAL TESTING
+-- Uncomment the lines below when setting up authentication
 
-alter table jobs       enable row level security;
-alter table contacts   enable row level security;
-alter table activities enable row level security;
+-- alter table jobs       enable row level security;
+-- alter table contacts   enable row level security;
+-- alter table activities enable row level security;
 
--- jobs
-create policy "jobs: select own"  on jobs for select using (auth.uid() = user_id);
-create policy "jobs: insert own"  on jobs for insert with check (auth.uid() = user_id);
-create policy "jobs: update own"  on jobs for update using (auth.uid() = user_id);
-create policy "jobs: delete own"  on jobs for delete using (auth.uid() = user_id);
+-- -- jobs
+-- create policy "jobs: select own"  on jobs for select using (auth.uid() = user_id);
+-- create policy "jobs: insert own"  on jobs for insert with check (auth.uid() = user_id);
+-- create policy "jobs: update own"  on jobs for update using (auth.uid() = user_id);
+-- create policy "jobs: delete own"  on jobs for delete using (auth.uid() = user_id);
 
--- contacts
-create policy "contacts: select own" on contacts for select using (auth.uid() = user_id);
-create policy "contacts: insert own" on contacts for insert with check (auth.uid() = user_id);
-create policy "contacts: update own" on contacts for update using (auth.uid() = user_id);
-create policy "contacts: delete own" on contacts for delete using (auth.uid() = user_id);
+-- -- contacts
+-- create policy "contacts: select own" on contacts for select using (auth.uid() = user_id);
+-- create policy "contacts: insert own" on contacts for insert with check (auth.uid() = user_id);
+-- create policy "contacts: update own" on contacts for update using (auth.uid() = user_id);
+-- create policy "contacts: delete own" on contacts for delete using (auth.uid() = user_id);
 
--- activities
-create policy "activities: select own" on activities for select using (auth.uid() = user_id);
-create policy "activities: insert own" on activities for insert with check (auth.uid() = user_id);
-create policy "activities: update own" on activities for update using (auth.uid() = user_id);
-create policy "activities: delete own" on activities for delete using (auth.uid() = user_id);
+-- -- activities
+-- create policy "activities: select own" on activities for select using (auth.uid() = user_id);
+-- create policy "activities: insert own" on activities for insert with check (auth.uid() = user_id);
+-- create policy "activities: update own" on activities for update using (auth.uid() = user_id);
+-- create policy "activities: delete own" on activities for delete using (auth.uid() = user_id);
