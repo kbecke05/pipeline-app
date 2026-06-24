@@ -18,3 +18,28 @@
     @apply text-gray-900 bg-gray-50;
   }
 }
+
+@layer components {
+  /*
+    Donut chart shape. Set the `background` (a conic-gradient) via inline
+    style from React — this class only cuts the hole in the middle.
+    The ::after circle matches the white card background; if you ever place
+    this on a non-white surface, update --donut-hole-color to match.
+  */
+  .donut-chart {
+    --donut-hole-color: #fff;
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .donut-chart::after {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    background: var(--donut-hole-color);
+  }
+}

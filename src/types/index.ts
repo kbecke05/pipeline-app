@@ -80,6 +80,7 @@ export interface DashboardStats {
   interviewing: number   // phone_screen + interview combined
   offers: number
   rejected: number
+  total_applied: number
 }
 
 // ─── UI helpers ───────────────────────────────────────────────────────────────
@@ -102,6 +103,19 @@ export const JOB_STATUS_COLORS: Record<JobStatus, string> = {
   offer:        'bg-emerald-100 text-emerald-700',
   rejected:     'bg-red-100 text-red-700',
   withdrawn:    'bg-gray-100 text-gray-600',
+}
+
+// Raw hex values matching the `status` color tokens in tailwind.config.js.
+// Use these for inline styles (e.g. conic-gradient stops, swatch dots) where
+// a real CSS color is needed instead of a Tailwind class string.
+export const JOB_STATUS_HEX: Record<JobStatus, string> = {
+  wishlist:     '#6366f1',
+  applied:      '#3b82f6',
+  phone_screen: '#f59e0b',
+  interview:    '#8b5cf6',
+  offer:        '#10b981',
+  rejected:     '#ef4444',
+  withdrawn:    '#6b7280',
 }
 
 export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getDashboardStats, getJobs } from '../lib/api/jobs'
-import type { DashboardStats, Job } from '../types'
+import { JOB_STATUS_HEX, JOB_STATUS_LABELS, type DashboardStats, type Job, type JobStatus } from '../types'
 import { Alert, LinkButton, StatusBadge, Table } from '../components/ui'
 import { errorMessage } from '../lib/utils'
 import { useNavigate } from 'react-router-dom'
@@ -31,13 +31,51 @@ export default function Dashboard() {
     load()
   },[])
 
+  const offerRate = stats && stats.total_applied > 0 ? 
+    ((stats.offers) / (stats.total_applied))* 100
+    : 0
+
+  const activeApplications = stats && (stats.applied + stats.interviewing)
+
   const statCards = [
-    ["Total", stats?.total],
-    ["Applied", stats?.applied],
+    ["Total Applied", stats?.total_applied],
+    ["Awaiting Response", stats?.applied],
     ["Interviewing", stats?.interviewing],
     ["Offers", stats?.offers],
-    ["Rejected", stats?.rejected]
+    ["Rejected", stats?.rejected],
+    ["Total Entries", stats?.total],
+    ["Offer Rate", `${offerRate.toFixed(1)}%`],
+    ["Active Applications", activeApplications]
   ]
+
+  const initialCounts: Record<JobStatus, number> = {
+    wishlist: 0,
+    applied: 0,
+    phone_screen: 0,
+    interview: 0,
+    offer: 0,
+    rejected: 0,
+    withdrawn: 0
+  }
+
+  const counts = jobs.reduce((acc, job)=> {
+    acc[job.status] += 1
+    return acc
+  }, initialCounts)
+
+  const total = jobs.length
+
+  let cumulative = 0
+  const stops = Object.entries(counts)
+    .map(([label, value]) => {
+      const percent = total === 0 ? 0: (value/total)*100
+      const start = cumulative
+      cumulative += percent
+      return `${JOB_STATUS_HEX[label as JobStatus]} ${start}% ${cumulative}%`
+    }
+  )
+
+  const gradient = `conic-gradient(${stops.join(', ')})`
 
 
   if (loading) return <div className="p-8 text-sm text-gray-400">Loading...</div>
@@ -51,15 +89,38 @@ export default function Dashboard() {
 
       {error && <Alert className="mb-4">{error}</Alert>}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-10">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 mb-10">
         {statCards.map(([label, value]) => (
           <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
             <p className="text-sm text-gray-500">{label}</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">{value}</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">{value ??'-'}</p>
           </div>
         ))}
       </div>
-      <h2 className='font-semibold text-gray-900 mb-4'>Recent Activity</h2>
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-10 flex items-center gap-8">
+        {jobs.length === 0 ? (
+          <div className="text-sm text-gray-400 italic">No data yet.</div>
+        ) : (
+          <>
+            <div className="donut-chart" style={{ background: gradient }}></div>
+            <div className="space-y-2">
+              {Object.entries(counts)
+                .filter(([, value]) => value > 0)
+                .map(([label]) => (
+                  <div key={label} className="flex items-center gap-2 text-sm text-gray-700">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: JOB_STATUS_HEX[label as JobStatus] }}
+                    />
+                    <span>{JOB_STATUS_LABELS[label as JobStatus]}</span>
+                  </div>
+                ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <h2 className="font-semibold text-gray-900 mb-4">Recent Activity</h2>
       <Table>
         <Table.Head>
           <Table.Row>

@@ -80,11 +80,11 @@ export async function deleteJob(id: string): Promise<void> {
 
 // Returns aggregate counts for the dashboard.
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const { data, error } = await supabase.from("jobs").select("status");
+  const { data, error } = await supabase.from("jobs").select("status, applied_date");
 
   if (error) throw error;
 
-  const rows = data as { status: JobStatus }[];
+  const rows = data as { status: JobStatus , applied_date : string | null}[];
 
   return {
     total: rows.length,
@@ -95,5 +95,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     ).length,
     offers: rows.filter((r) => r.status === "offer").length,
     rejected: rows.filter((r) => r.status === "rejected").length,
+    total_applied: rows.filter((r) => r.applied_date !== null).length,
   };
 }
+
